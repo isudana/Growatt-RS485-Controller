@@ -1,0 +1,285 @@
+<html>
+<style>
+    table {
+        width: 469px;
+        border: 0;
+        border-spacing: 1px;
+    }
+
+    td.param {
+        background-color: #adf1bb;
+        color: rgba(34, 131, 34, 0.623);
+        width: 228px;
+        height: 46px;
+        border: 0pt;
+    }
+
+    td.val,
+    .inputField,
+    .readOnlyField {
+        background-color: #d7f0dc81;
+        color: rgba(34, 131, 34, 0.623);
+        text-align: center
+    }
+
+    .inputField {
+        width: 50px;
+        height: 40px;
+        border: 0pt;
+    }
+
+    .inputFieldSubText {
+        width: 20px;
+        height: 40px;
+        border: 0pt;
+    }
+
+    .readOnlyField {
+        width: 228px;
+        height: 46px;
+        border: 0pt;
+    }
+
+    td.buttonApply {
+        text-align: right;
+    }
+
+    td.buttonSet {
+        background-color: #d7f0dc81;
+        color: rgba(34, 131, 34, 0.623);
+        text-align: right;
+    }
+
+    #sbuButton {
+        margin-right: 10px;
+        width: 100px;
+    }
+
+    #subButton {
+        margin-right: 10px;
+        width: 100px;
+    }
+
+    tr {
+        height: 46px;
+    }
+
+    table.tableStyle {
+        margin-left: 5%;
+    }
+
+    h4 {
+        color: rgba(22, 87, 22, 0.623);
+        margin: 20px;
+        font-size: 1.3em;
+    }
+
+    h5 {
+        color: rgba(22, 87, 22, 0.623);
+        margin: 30px;
+        font-size: 1.0em;
+    }
+
+    body {
+        background: rgb(255, 255, 255);
+        margin: 10px;
+    }
+
+    h1 {
+        font-family: 'Inconsolata';
+        font-variant: small-caps;
+        text-align: center;
+        color: #bbb;
+        font-weight: normal;
+        font-size: 2.5em;
+    }
+</style>
+<script>var Socket;
+
+    function start() {
+      document.getElementById("systemMode").value = "Connecting...";
+      Socket = new WebSocket("ws://" + window.location.hostname + ":81/");
+      Socket.onmessage = function (event) {
+        document.getElementById("systemMode").value = "Online";
+        var eventDataArr = event.data.split("_");
+        if (eventDataArr[0] == "STATUS") {
+          document.getElementById("systemMode").value = eventDataArr[1];
+          document.getElementById("systemTime").value = eventDataArr[2];  
+        } else if (eventDataArr[0] == "CONFIG") {
+          document.getElementById("subTimer1Hours").value = eventDataArr[1];
+          document.getElementById("subTimer1Mins").value = eventDataArr[2];
+          document.getElementById("subTimer2Hours").value = eventDataArr[3];
+          document.getElementById("subTimer2Mins").value = eventDataArr[4];
+          document.getElementById("sbuTimer1Hours").value = eventDataArr[5];
+          document.getElementById("sbuTimer1Mins").value = eventDataArr[6];
+          document.getElementById("sbuTimer2Hours").value = eventDataArr[7];
+          document.getElementById("sbuTimer2Mins").value = eventDataArr[8];
+        }
+      };
+    }
+    
+    function sub() {
+      Socket.send("CMD:SUB");
+    }
+    
+    function sbu() {
+        Socket.send("CMD:SBU");
+    }
+    
+    function updateSUBConfig() {
+      var subTimer1Hours = parseInt(document.getElementById("subTimer1Hours").value);
+      var subTimer1Mins = parseInt(document.getElementById("subTimer1Mins").value);
+      var subTimer2Hours = parseInt(document.getElementById("subTimer2Hours").value);
+      var subTimer2Mins = parseInt(document.getElementById("subTimer2Mins").value);
+
+      if (subTimer1Hours > 23 || subTimer1Hours < 0) {
+            window.alert("SUB Timer 1 Hours should be between 0 and 23");
+            return;
+        }
+        if (subTimer1Mins > 59 || subTimer1Mins < 0) {
+            window.alert("SUB Timer 1 Mins should be between 0 and 59");
+            return;
+        }
+        if (subTimer2Hours > 23 || subTimer2Hours < 0) {
+            window.alert("SUB Timer 2 Hours should be between 0 and 23");
+            return;
+        }
+        if (subTimer2Mins > 59 || subTimer2Mins < 0) {
+            window.alert("SUB Timer 2 Mins should be between 0 and 59");
+            return;
+        }
+      
+      var configData =
+        "SUB:" + subTimer1Hours.toString() + ":" + subTimer1Mins.toString() + ":"
+        + subTimer2Hours.toString() + ":" + subTimer2Mins.toString() ;
+      Socket.send(configData);
+      window.alert("Configuration Updated..!");
+    }
+    
+    function updateSBUConfig() {
+        var sbuTimer1Hours = parseInt(document.getElementById("sbuTimer1Hours").value);
+        var sbuTimer1Mins = parseInt(document.getElementById("sbuTimer1Mins").value);
+        var sbuTimer2Hours = parseInt(document.getElementById("sbuTimer2Hours").value);
+        var sbuTimer2Mins = parseInt(document.getElementById("sbuTimer2Mins").value);
+        if (sbuTimer1Hours > 23 || sbuTimer1Hours < 0) {
+            window.alert("SBU Timer 1 Hours should be between 0 and 23");
+            return;
+        }
+        if (sbuTimer1Mins > 59 || sbuTimer1Mins < 0) {
+            window.alert("SBU Timer 1 Mins should be between 0 and 59");
+            return;
+        }
+        if (sbuTimer2Hours > 23 || sbuTimer2Hours < 0) {
+            window.alert("SBU Timer 2 Hours should be between 0 and 23");
+            return;
+        }
+        if (sbuTimer2Mins > 59 || sbuTimer2Mins < 0) {
+            window.alert("SBU Timer 2 Mins should be between 0 and 59");
+            return;
+        }
+        
+        var configData =
+          "SBU:" + sbuTimer1Hours.toString() + ":" + sbuTimer1Mins.toString() + ":"
+          + sbuTimer2Hours.toString() + ":" + sbuTimer2Mins.toString() ;
+        Socket.send(configData);
+        window.alert("Configuration Updated..!");
+      }</script>
+
+<body onload="javascript:start();">
+    <h1><img
+            src="data:image/jpeg;base64, /9j/4AAQSkZJRgABAQAASABIAAD/4QCeRXhpZgAATU0AKgAAAAgABQESAAMAAAABAAEAAAEaAAUAAAABAAAASgEbAAUAAAABAAAAUgExAAIAAAARAAAAWodpAAQAAAABAAAAbAAAAAAAAABIAAAAAQAAAEgAAAABQWRvYmUgSW1hZ2VSZWFkeQAAAAOgAQADAAAAAQABAACgAgAEAAAAAQAAAamgAwAEAAAAAQAAAHYAAAAA/+EJbWh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8APD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNi4wLjAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgSW1hZ2VSZWFkeSIvPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDw/eHBhY2tldCBlbmQ9InciPz4A/8AAEQgAdgGpAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/bAEMAHBwcHBwcMBwcMEQwMDBEXERERERcdFxcXFxcdIx0dHR0dHSMjIyMjIyMjKioqKioqMTExMTE3Nzc3Nzc3Nzc3P/bAEMBIiQkODQ4YDQ0YOacgJzm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5v/dAAQAG//aAAwDAQACEQMRAD8A6SiiigAoopCQoyTgUALRVOS8ReEG6qrXcx6YFZuokS5I1qKxvtM396lF1MP4qXtULnRsUVnLet/GufpVyOeOT7p59DVqaZSkmS0UUVQwooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD/9DpKKKjlkESFjQ3YBJZlhXJ69hWTJM8pyx/DtTXdpGLN1NNrlnNsycrhRRU6W0r84wPepSb2FYgoq8LE92pGsnH3SDVckuw+VlKjp0p7xvGcOMUyoJL0F2R8svI9a0QQRkVlW9uZDub7v8AOtUAAYFdNNu2prG4UUUVoUFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQB//R6Ssm6l8yTA6LxWlM+yNm9qxKxqvoRN9ApVUsQq8k0laVnFhfNPU9KyjG7sQlckhtliGW5arNFFdSSWiNUgooopjEIDDDDIqn9jXzM5+X0q7RUuKe4mrgAAMCiiiqGFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAf/S2bwkRAeprLrTvf8AVj61mVzVfiMpbgBk4reVQqhR2rEj++ufWtyro9SoBRRRWxYUUyVzHGXHaqH21/7oqZTS3E3Y0qKzftr/AN0UfbX/ALoqfaRFzI0qKzftr/3RR9tf+6KPaRDmRpUVm/bX/uitIdKqMk9hp3CimSNsjZx2BNY39qy/3F/M1QzcorPs7x7l2VlAAGeKjudSWMlIRuI79qANSisGG/uZJ0ViMMcEYreoAKKZJIkS75DgVky6rziFePU0AbNFc4dRuj0YD8Kemp3C/ew34UAdBRWfb6hFMQr/ACMfXpWhQAUUhzg461if2rKOCi/maANyiqFneG5LKwAI5GKv0AFFMkcRxtIf4Rmsb+1Zf7i/maANyiqNndm53BgAV9KvUAFFRTyiGJpT2FZK6pMxChFyeOpoA26KB05qrc3aWwG4Ek9AKALVFYT6rKfuKB9eah/tG6/vD8hQB0dFc+mp3Cn5gG/StS2vYrj5R8reh/pQBcooqtdzNbxeYoBOcc0AWaKw/wC1Zf7i/maP7Vl/uL+ZoA3KKw/7Vl/uL+ZrRs7hrmMuwAIOOKALdFZt5evbSBFUHIzzVX+1Zf7i/maANyisP+1Zf7i/maQ6rL/cX9aAN2ikU7lB9RS0Af/T27tcwk+hzWTW6671KnuKwyCpIPaueqtbmc0JW5GwdAw7isOr1pNj903fpSpys7BFmjRRRXSaENx/qW+lY1bcyl4mVeprM+yT+n61hVTb0M5Ir0VY+yT+n60jW8qKWYAAe9Zcr7E2ZBRRRSEAreHSsEVvDpW1HqaQI5/9S/8Aun+VcnXWT/6l/wDdP8q5OtyyWOZoldU/jGM0+G1nnGY149TwKksbdbibD/dXkj1rpQABgcCgDBisLiKZHIBAYE4NbpIAJPQUtUdQk2WxA6txQBi3Vw1xJu/hH3RUMUbSuI05JplbGlRj55T9BQBMmlwhfnJY/lVS70/yVMkRJUdQetb1IQCMHoaAOPrd066MimGQ5Zeh9RWNKnlytH/dOKfayeVcI/vg/jQB1VcveR+XcuvYnI/GuorF1WPlJR9DQBUsJPLuV9G4/OulrjwSpDDqOa62Nw6K47jNAFHU5NkGwdXP6CufrR1OTfPsHRB+pqn5JEAn7FttAFrTpNlyB2YYroq5CNijq4/hOa64EMAw70AZeqSYjWIfxHJ/Cs+wj8y5X0Xml1CTzLkgdF4q9pUeEaU9zgfhQBrVmX1tLcOgjHAzkmtOigDKj0qMD94xJ9uKlOm2xGMEfjV8kKMk4qI3MA6uv50Ac/d2ptnAzlW6GqqsUYOvBByK1dSmilVPLYNgnpWTQB10bb0V/UA1HcQC4j8snHOaLb/j3j/3RU9AHMXduLaQIDuyM1VrT1X/AF6/7v8AWsygDZXS0ZQd55HpWhbW4tkKA5yc1LH/AKtfoKfQBRubJblw5YjAxXOsNrFfQ4rsK5GX/WN9TQBJbQieYRE4z3rT/slP+eh/KqWn/wDH2v0NdJQAijaAPSloooA//9TpKzbyLDeaOh61pUjKHUq3INTKN1YTVzBoqaaFoWx2PQ1DXI1bQyNCC7GNsv51eBBGRyKwacsjp90kVrGq1uUpG7RWQLqcd/0pDczN1b8qv2qHzo1JJUiGWP4VlzTtMfQDtUBJJyaKylNslyuFFFFQSAreHSsEVvDpW1HqaQI5/wDUv/un+VcnXWT/AOpf/dP8q5OtyzV0r/WP9K3Kw9K/1j/StygArK1X/VJ9a1ao6im+2JH8JzQBzlb+l4+zn/eNYFbOlSDDxH6igDYoooJAGT2oA5i9/wCPqT61WX7w+op8z+ZKz+pJp9tH5s6J78/hQB1Q6VTv4/Mtm9V5/KrlIQGBU9DQBx9dDp8oNrg/wZH4dawJEMbsh/hOKmhnMUciD+MYoAikcySM5/iOa3Xt8af5fcLn8etY1rH5s6J2zz9BXUkAjB70AcfXR2kw+xiQ/wAAIP4Vz8qGORkPYkVKk5S3eH+8R/8AXoAgZizFj1JzXU20flQInoOa5y1j82dE7ZyfoK6qgArNvb7yT5UXL9z6VosdqlvQZrkXYuxdupOaAFeSSQ5kYsfenpbTyDKISPXFW9NhSWUs4yEHT3roKAOTlglhAMi4z0qKtrVfuR/U1i0AdVbf8e8f+6KnqC1/494/90VPQBg6r/r1/wB3+tZlaeqf69f93+tZlAHXR/6tfoKfTI/9Wv0FPoAK5GX/AFjfU111cjL/AKxvqaALWn/8fa/Q10lc1p/F2v410tABRRRQB//V6SiiigBrKrrtYZBrNmtXTlPmH61qUVMoJiauYFFbTwxyfeHPrVZrJf4Wx9awdJ9CHFmdRVw2UnYilFk/dhS5JdhcrKVORGc4UZNaKWcY+8S1W1VUGFGKpUn1GoGZJbeVFuY5aqlbM8bSx7V6+9UfsUvqKJw10QOPYqCt4dKzfsUvqK0x0q6UWr3HFEU/+pf/AHT/ACrk666RS8bIO4IrE/suf+8v61qWO0r/AFj/AErcrNsrOS2dmcg5GOK0qACkIDAqehpaKAOWubdreQoeh6H1FRxSvDIJE6iuplijmTZIMisiXS2BzC2R6GgC1Hqduy5fKn061Tu9Q81TFCCAepNVzp90Djbn8aeum3LdQF+poAoVuabbGNfPcYLdB7VJb6dFEQ8h3kflWjQAUUUUAc7qMey5LdmGaoV0d7atchdhAK+vpWf/AGXP/eX9aAH6VHl2lPYYH41t1WtIDbwhGwTnJxVmgDntSj2XG7+8M1n10d7atchdhAKnvWf/AGXP/eX9aAH6VHl2lPYYH41t1WtIDbw7GwTnJxVmgBGG5SvqMVyLoUco3UHFdfVG7sUuPnU7X9fX60AYltcNbSbwMg8EVqNqsW35VJPvVBtPulOAufoakj0ydj+8wo/OgCrPcSXDbpO3QDoKgrpDYwmAwqMd898+tZLaddKcABvcGgC/Z30ZRIWyG+77VqVg29hcLKkjgAKc9a3qAMXVYzlJe3SsiuukjSVCjjINYsulyqcxEMPfg0AOttSWOMRygnbwCK0re6S53bARt9aw/sF1nGz9RWtY20lsreZj5sdKAL9ctdxmO4dT65H0NdTVW5tI7lfm4YdDQBzcbtE4kXqDmtpdUhI+ZWBqi+m3K/dw30NNGn3R/hx9TQB0MUgljEg4Dc0+ooEMUKxt1AxUtAH/1ukooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD/2Q==">&nbsp;Timer</h1>
+    <p>You can use this console to view the current status and set the configuration parameters of the Growatt Timer
+        system.</p>
+    <p>&nbsp;</p>
+    <h4>System Status</h4>
+    <table class="tableStyle">
+        <tbody>
+            <tr>
+                <td class="param">&nbsp;System Mode</td>
+                <td class="val"><input class="readOnlyField" type="text" id="systemMode" readonly></td>
+            </tr>
+            <tr>
+                <td class="param">&nbsp;System Time</td>
+                <td class="val"><input class="readOnlyField" type="text" id="systemTime" readonly></td>
+            </tr>
+        </tbody>
+    </table>
+    <p>&nbsp;</p>
+    <div id="setMode">
+        <h4>Set System Mode</h4>
+        <table class="tableStyle">
+            <tbody>
+                <tr>
+                    <td class="param">
+                        <p>&nbsp;SUB (Solar -> Utility -> Battery)</p>
+                    </td>
+                    <td class="buttonSet"> <button id="subButton" type="button"
+                            onclick="sub();">Set</button> </td>
+                </tr>
+                <tr>
+                    <td class="param">
+                        <p>&nbsp;SBU (Solar -> Battery -> Utility)</p>
+                    </td>
+                    <td class="buttonSet"> <button id="sbuButton" type="button"
+                            onclick="sbu();">Set</button> </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>&nbsp;</p>
+        <h4>Timer Configurations</h4>
+        <h5>SUB (Solar -> Utility -> Battery)</h5>
+        <table class="tableStyle">
+            <tbody>
+                <tr>
+                    <td class="param">
+                        <p>&nbsp;Timer 1</p>
+                    </td>
+                    <td class="val"> <input class="inputField" type="text" id="subTimer1Hours"> <span
+                            class="inputFieldSubText">Hours</span> <input class="inputField" type="text"
+                            id="subTimer1Mins"> <span class="inputFieldSubText">Mins</span> </td>
+                </tr>
+                <tr>
+                    <td class="param">
+                        <p>&nbsp;Timer 2</p>
+                    </td>
+                    <td class="val"> <input class="inputField" type="text" id="subTimer2Hours"> <span
+                            class="inputFieldSubText">Hours</span> <input class="inputField" type="text"
+                            id="subTimer2Mins"> <span class="inputFieldSubText">Mins</span> </td>
+                </tr>
+                <tr>
+                    <td> </td>
+                    <td class="buttonApply"><button id="applyButton" type="button"
+                            onclick="updateSUBConfig();">Apply</button> </td>
+                </tr>
+            </tbody>
+        </table>
+        <h5>SBU (Solar -> Battery -> Utility)</h5>
+        <table class="tableStyle">
+            <tbody>
+                <tr>
+                    <td class="param">
+                        <p>&nbsp;Timer 1</p>
+                    </td>
+                    <td class="val"> <input class="inputField" type="text" id="sbuTimer1Hours"> <span
+                            class="inputFieldSubText">Hours</span> <input class="inputField" type="text"
+                            id="sbuTimer1Mins"> <span class="inputFieldSubText">Mins</span> </td>
+                </tr>
+                <tr>
+                    <td class="param">
+                        <p>&nbsp;Timer 2</p>
+                    </td>
+                    <td class="val"> <input class="inputField" type="text" id="sbuTimer2Hours"> <span
+                            class="inputFieldSubText">Hours</span> <input class="inputField" type="text"
+                            id="sbuTimer2Mins"> <span class="inputFieldSubText">Mins</span> </td>
+                </tr>
+                <tr>
+                    <td> </td>
+                    <td class="buttonApply"><button id="applyButton" type="button"
+                            onclick="updateSBUConfig();">Apply</button> </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>
